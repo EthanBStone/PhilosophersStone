@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-	<name>PStone</name>
-	<directory>PhilosophersStone</directory>
-	<description/>
-	<version>1.0</version>
-	<visibility/>
+    <name>PhilosophersStone</name>
+    <directory>philosophersstone</directory>
+    <id>2503994006</id>
+    <description>The Philosopher's stone is a new single use active item that can be found in shops. Upon use, it will turn some of the pickups on the ground into their golden variants! This includes coins, keys, bombs, pills, batteries, chests, trinkets, and trollbombs! It will also temporarily freeze enemies in the room into golden statues. Use it wisely, as it is only a single use, and costs 20 coins to buy instead of the usual 15. </description>
+    <version>1.2</version>
+    <visibility>Public</visibility>
+    <tag id="Items"/>
 </metadata>
-
