@@ -64,33 +64,15 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 	--print("Philosopher's Stone used!")
 	--print("Use flags: " .. useFlags)
 
-
-	local convertedCount = {
-		0, --heartsConverted
-		0, --coinsConverted
-		0, --keysConverted
-		0, --bombsConverted
-		0, --pillsConverted
-		0, --batteryConverted
+	local convertedData = {
+		{Count = 0, Variant = PickupVariant.PICKUP_HEART, 		SubType = HeartSubType.HEART_GOLDEN},
+		{Count = 0, Variant = PickupVariant.PICKUP_COIN, 		SubType = CoinSubType.COIN_GOLDEN},
+		{Count = 0, Variant = PickupVariant.PICKUP_KEY, 		SubType = KeySubType.KEY_GOLDEN},
+		{Count = 0, Variant = PickupVariant.PICKUP_BOMB, 		SubType = BombSubType.BOMB_GOLDEN},
+		{Count = 0, Variant = PickupVariant.PICKUP_PILL, 		SubType = PillColor.PILL_GOLD},
+		{Count = 0, Variant = PickupVariant.PICKUP_LIL_BATTERY, SubType = BatterySubType.BATTERY_GOLDEN},
 	}	
-	local convertedVariant = {
-		PickupVariant.PICKUP_HEART,
-		PickupVariant.PICKUP_COIN,
-		PickupVariant.PICKUP_KEY,
-		PickupVariant.PICKUP_BOMB,
-		PickupVariant.PICKUP_PILL,
-		PickupVariant.PICKUP_LIL_BATTERY,
-	}
-	
-	local goldSubtype = {
-		HeartSubType.HEART_GOLDEN,
-		CoinSubType.COIN_GOLDEN,
-		KeySubType.KEY_GOLDEN,
-		BombSubType.BOMB_GOLDEN,
-		PillColor.PILL_GOLD,
-		BatterySubType.BATTERY_GOLDEN,	
-	}
-	
+
 	local trinketsConverted = 0
 	--Convert Pickups
 	for _, pickup in pairs(Isaac.FindByType(EntityType.ENTITY_PICKUP)) do
@@ -103,9 +85,9 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 			pickup:Morph(EntityType.ENTITY_PICKUP, variant, subtype + 32768, true, true)
 		else
 			for i = 1, 6 do
-				if variant == convertedVariant[i] and subtype ~= goldSubtype[i] and  convertedCount[i] < PStone.pStoneCap[i] then
-					convertedCount[i] = convertedCount[i] + 1
-					pickup:Morph(EntityType.ENTITY_PICKUP, variant, goldSubtype[i], true, true)
+				if variant == convertedData[i].Variant and subtype ~= convertedData[i].SubType and  convertedData[i].Count < PStone.pStoneCap[i] then
+					convertedData[i].Count = convertedData[i].Count + 1
+					pickup:Morph(EntityType.ENTITY_PICKUP, variant, convertedData[i].SubType, true, true)
 				end		
 				
 			end
@@ -212,5 +194,5 @@ PStone:AddCallback(ModCallbacks.MC_POST_UPDATE, PStone.onUpdate)
 PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE)
 
 if EID then
-	EID:addCollectible(PStone.COLLECTIBLE_P_STONE, "Turns coins, bombs, keys, pills, hearts, batteries, and trikets on the ground into their golden version. Also temporarily turns some non-boss enemies in the room into golden statues.")
+	EID:addCollectible(PStone.COLLECTIBLE_P_STONE, "Turns some coins, bombs, keys, pills, hearts, batteries, and trikets on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.")
 end
