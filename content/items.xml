@@ -1,3 +1,5 @@
 <items gfxroot="gfx/items/" version="1">
-	<active description="Turn everything gold!" gfx="PhilosophersStone.png" maxcharges="0" name="The Philosopher's Stone" shopprice="20" initcharge="0" />
+	<active description="Turn everything gold!" gfx="PhilosophersStone1Charge.png" maxcharges="6" name="The Philosopher's Stone" shopprice="20" />
+	<active description="Turn everything gold!" gfx="PhilosophersStone2Charges.png" maxcharges="6" name="The Philosopher's Stone " shopprice="20" />
+	<active description="Turn everything gold!" gfx="PhilosophersStone2.png" maxcharges="6" name="The Philosopher's Stone  " shopprice="20" />
 </items>

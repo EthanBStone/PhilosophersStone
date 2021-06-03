@@ -1,9 +1,9 @@
 <ItemPools>
 	<Pool Name="shop">
-		<Item Name="The Philosopher's Stone" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+		<Item Name="The Philosopher's Stone  " Weight="1" DecreaseBy="1" RemoveOn="0.1" />
 	</Pool>
 	
 	<Pool Name="greedShop">
-		<Item Name="The Philosopher's Stone" Weight="1" DecreaseBy="1" RemoveOn="0.1" />
+		<Item Name="The Philosopher's Stone  " Weight="1" DecreaseBy="1" RemoveOn="0.1" />
 	</Pool>
 </ItemPools>

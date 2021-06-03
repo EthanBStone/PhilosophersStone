@@ -6,8 +6,10 @@ local game = Game()
 local GameState = {}
 
 
-PStone.COLLECTIBLE_P_STONE = Isaac.GetItemIdByName("The Philosopher's Stone")
-
+PStone.COLLECTIBLE_P_STONE_THREE = Isaac.GetItemIdByName("The Philosopher's Stone  ")
+PStone.COLLECTIBLE_P_STONE_TWO = Isaac.GetItemIdByName("The Philosopher's Stone ")
+PStone.COLLECTIBLE_P_STONE_ONE = Isaac.GetItemIdByName("The Philosopher's Stone")
+PStone.CHALLENGEID = Isaac.GetChallengeIdByName("Philosopher Stone: Gold Rush!")
 --[[
 *Add poop support
 *Fix it with void, void instantly uses it unlike other 1 use items
@@ -57,41 +59,53 @@ PStone.ItemConversions = {
 	ConvertTo = CollectibleType.COLLECTIBLE_MORE_OPTIONS}, --options? to more options				
 }
 
+
+local DEBUG_MODE = 0
 function PStone:onUpdate()
-	--print("Num trinkets = " .. TrinketType.NUM_TRINKETS)
+	
+
 	if game:GetFrameCount()  == 5 then
-		player:AddCollectible(PStone.COLLECTIBLE_P_STONE, 12)
-		Isaac.ExecuteCommand("debug 8")
-		player:AddCard(7) --Lovers card
-		--player:UseCard(10) --Use hermit
-		player:AddCollectible(534) --Schoolbag
-		Isaac.Spawn(EntityType.ENTITY_PICKUP, 100, 439, Vector(380,300), Vector(0,0), nil) -- Moms box
-		for cnt = 1, 3 do
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, 40, 1, Vector(0,0), Vector(0,0), nil) -- Bomb
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, 30, 1, Vector(150,0), Vector(0,0), nil) -- Key
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_LIL_BATTERY, 1, Vector(300,0), Vector(0,0), nil) -- Battery
-			Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_PILL, 1, Vector(450,0), Vector(0,0), nil) -- Pills
+		if Isaac.GetChallenge() == PStone.CHALLENGEID  then
+			--print("Challenge started!")
+			player:AddCollectible(PStone.COLLECTIBLE_P_STONE_THREE, 6, false, 0)
 		end
-		Isaac.Spawn(EntityType.ENTITY_PICKUP, 100, CollectibleType.COLLECTIBLE_IRON_BAR, Vector(400,330), Vector(0,0), nil) -- Iron bar
-		
-		player:AddCollectible(65, 12) --Anarchist cookbook
-	end
-	if game:GetFrameCount() % 30 == 1 then
-		player = game:GetPlayer(0)
-		
-		
-		if trinket ~= nil then
-			--print("Sucessfully generated trinket!")
+		--DEBUG ONLY
+		if DEBUG_MODE == 1 then
+			player:AddCollectible(PStone.COLLECTIBLE_P_STONE_THREE, 12)
+			--Isaac.ExecuteCommand("debug 8")
+			Isaac.ExecuteCommand("debug 3")
+			player:AddCard(7) --Lovers card
+			--player:UseCard(10) --Use hermit
+			player:AddCollectible(534) --Schoolbag
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, 100, 439, Vector(380,300), Vector(0,0), nil) -- Moms box
+			for cnt = 1, 3 do
+				player:AddCollectible(603) --Battery pack
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, 40, 1, Vector(0,0), Vector(0,0), nil) -- Bomb
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, 30, 1, Vector(150,0), Vector(0,0), nil) -- Key
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_LIL_BATTERY, 1, Vector(300,0), Vector(0,0), nil) -- Battery
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_PILL, 1, Vector(450,0), Vector(0,0), nil) -- Pills
+			end
+			Isaac.Spawn(EntityType.ENTITY_PICKUP, 100, CollectibleType.COLLECTIBLE_IRON_BAR, Vector(400,330), Vector(0,0), nil) -- Iron bar
 			
+			player:AddCollectible(65, 12) --Anarchist cookbook		
 		end
+
 	end
+	
+	
 end
 
 
 function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
-	--print("Philosopher's Stone used!")
-	--print("Use flags: " .. useFlags)
 
+	--print("Use flags: " .. useFlags)
+	if useFlags & UseFlag.USE_CARBATTERY > 0 then
+		local infoTable = {
+			Remove = false,
+			ShowAnim = false,
+			}	
+		return tableInfo
+	end
 	local convertedData = {
 		{Count = 0, Variant = PickupVariant.PICKUP_HEART, 		SubType = HeartSubType.HEART_GOLDEN},
 		{Count = 0, Variant = PickupVariant.PICKUP_COIN, 		SubType = CoinSubType.COIN_GOLDEN},
@@ -132,18 +146,14 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 				if variant == PickupVariant.PICKUP_COLLECTIBLE then
 					for ind, items in pairs(PStone.ItemConversions) do
 						if subtype == items.Target then
-							--print("Converting " .. subtype .. " To " .. items.ConvertTo)
 							pickup:Morph(EntityType.ENTITY_PICKUP, variant, items.ConvertTo, true, true)
 						end
-						--print("Subtype = " .. subtype)
 					end
-				
+				--For normal pickups
 				elseif variant == convertedData[i].Variant and subtype ~= convertedData[i].SubType and  convertedData[i].Count < (PStone.pStoneCap[i] * carBatteryMult) then
 					convertedData[i].Count = convertedData[i].Count + 1
 					pickup:Morph(EntityType.ENTITY_PICKUP, variant, convertedData[i].SubType, true, true)
-				end
-				
-				
+				end		
 			end
 		end	
 	end
@@ -170,17 +180,46 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 	
 	--Item is 1 use
 	local infoTable = {
-		Remove = true,
+		Remove = false,
 		ShowAnim = true,
 	
 	}	
+	
+
+	if useFlags & UseFlag.USE_VOID > 0 then
+		if PStone.CHALLENGEID ~= Isaac.GetChallenge() then
+			infoTable.Remove = true
+			return infoTable
+		end
+	elseif useFlags & UseFlag.USE_CARBATTERY  == 0 then
+		if item == PStone.COLLECTIBLE_P_STONE_ONE then
+			infoTable.Remove = true
+		elseif item == PStone.COLLECTIBLE_P_STONE_TWO then
+			player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_TWO, true, slot)
+			player:AddCollectible(PStone.COLLECTIBLE_P_STONE_ONE, 0, false, slot)
+			--print("1 charges left!")
+		elseif item == PStone.COLLECTIBLE_P_STONE_THREE then
+			if PStone.CHALLENGEID ~= Isaac.GetChallenge() then
+				player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_THREE, true, slot)
+				player:AddCollectible(PStone.COLLECTIBLE_P_STONE_TWO, 0, false, slot)		
+			end
+
+		end	
+	end
+
+	
+	
+	
 	
 	return infoTable
 end
 
 PStone:AddCallback(ModCallbacks.MC_POST_UPDATE, PStone.onUpdate)
-PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE)
-
+PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE_ONE)
+PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE_TWO)
+PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE_THREE)
 if EID then
-	EID:addCollectible(PStone.COLLECTIBLE_P_STONE, "#Single use.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
+	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_THREE, "#Three uses.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
+	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_TWO, "#Two uses left.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
+	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_ONE, "#One use left.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
 end

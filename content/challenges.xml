@@ -1,0 +1,4 @@
+<challenges version="1">
+
+	<challenge name="Philosopher Stone: Gold Rush!" difficulty = "1" playertype = "2" endstage="11" altpath = "true"/>
+</challenges>
