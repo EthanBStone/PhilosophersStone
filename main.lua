@@ -3,19 +3,9 @@ local game = Game()
 --local json = require("json")
 --local sound = SFXManager()
 
-local GameState = {}
 
 
-PStone.COLLECTIBLE_P_STONE_THREE = Isaac.GetItemIdByName("The Philosopher's Stone  ")
-PStone.COLLECTIBLE_P_STONE_TWO = Isaac.GetItemIdByName("The Philosopher's Stone ")
-PStone.COLLECTIBLE_P_STONE_ONE = Isaac.GetItemIdByName("The Philosopher's Stone")
-PStone.CHALLENGEID = Isaac.GetChallengeIdByName("Philosopher Stone: Gold Rush!")
---[[
-*Add poop support
-*Fix it with void, void instantly uses it unlike other 1 use items
-
-
-]]--
+local MAX_USES = 3 --This is the maximum number of uses the stone has. You can only use 3, 2, or 1
 
 PStone.pStoneCap = {
 
@@ -30,7 +20,7 @@ PStone.pStoneCap = {
 	TRINKETS = 50,	--Cap for trinkets, I made it nearly infinite since you can only hold 1 trinket anyway
 
 	ENEMIES = 10,	--Cap for enemies
-	TROLLBOMBS = 4,
+	TROLLBOMBS = 4, --Cap for troll bombs
 }
 --Convert certain item pedestal into their golden variant
 PStone.ItemConversions = {
@@ -58,7 +48,23 @@ PStone.ItemConversions = {
 	{Target = CollectibleType.COLLECTIBLE_OPTIONS, 
 	ConvertTo = CollectibleType.COLLECTIBLE_MORE_OPTIONS}, --options? to more options				
 }
+--[[
+*Know issues/To Do
+*Add poop support
+*Fix it with void, void instantly uses it unlike other 1 use items
 
+
+]]--
+
+--==================================================================================
+--DO NOT TOUCH ANYTHING BEYOND THIS PONT
+
+PStone.COLLECTIBLE_P_STONE_THREE = Isaac.GetItemIdByName("The Philosopher's Stone  ")
+PStone.COLLECTIBLE_P_STONE_TWO = Isaac.GetItemIdByName("The Philosopher's Stone ")
+PStone.COLLECTIBLE_P_STONE_ONE = Isaac.GetItemIdByName("The Philosopher's Stone")
+PStone.CHALLENGEID = Isaac.GetChallengeIdByName("Philosopher Stone: Gold Rush!")
+
+local GameState = {}
 
 local DEBUG_MODE = 0
 function PStone:onUpdate()
@@ -201,7 +207,15 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 		elseif item == PStone.COLLECTIBLE_P_STONE_THREE then
 			if PStone.CHALLENGEID ~= Isaac.GetChallenge() then
 				player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_THREE, true, slot)
-				player:AddCollectible(PStone.COLLECTIBLE_P_STONE_TWO, 0, false, slot)		
+				if MAX_USES == 1 then
+					infoTable.Remove = true
+					return infoTable			
+				elseif MAX_USES == 2 then
+					player:AddCollectible(PStone.COLLECTIBLE_P_STONE_ONE, 0, false, slot)
+				else
+					player:AddCollectible(PStone.COLLECTIBLE_P_STONE_TWO, 0, false, slot)
+				end
+						
 			end
 
 		end	
@@ -223,3 +237,12 @@ if EID then
 	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_TWO, "#Two uses left.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
 	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_ONE, "#One use left.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
 end
+
+--============================================================================
+--DO NOT TOUCH THIS FUNCTION THIS IS ONLY TO PREVENT YOU FROM BREAKING THE MOD
+if MAX_USES > 3 then
+	MAX_USES = 3
+elseif MAX_USES <= 0 then
+	MAX_USES = 1
+end
+--============================================================================

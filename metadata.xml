@@ -3,7 +3,9 @@
     <name>The Philosopher's Stone</name>
     <directory>philosophersstone</directory>
     <id>2503994006</id>
-    <description>The Philosopher's stone is a new active item in the shop item  pool that can be used 3 times. Upon use, it will turn some of the pickups on the ground into their golden variants! This includes coins, keys, bombs, pills, batteries, chests, trinkets, and trollbombs! It will also temporarily freeze enemies in the room into golden statues. Use it wisely, as it can only be used 3 times, and costs 20 coins to buy instead of the usual 15.
+    <description>Works well with my [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2504663465]Trinket Stacking+[/url] mod, which give more unique effects to golden trinkets!
+
+The Philosopher's stone is a new active item in the shop item  pool that can be used 3 times. Upon use, it will turn some of the pickups on the ground into their golden variants! This includes coins, keys, bombs, pills, batteries, chests, trinkets, and trollbombs! It will also temporarily freeze enemies in the room into golden statues. Use it wisely, as it can only be used 3 times, and costs 20 coins to buy instead of the usual 15.
 
 Now includes a new Challenge: &quot;Gold Rush!&quot;, which gives you a 6 room charge Philosopher Stone that can be used an infinite amount of times
 
@@ -31,7 +33,7 @@ Known Bugs/Issues:
 
 Programming by EdinEfin
 Item Sprite by PJJLegend</description>
-    <version>1.7</version>
+    <version>1.8</version>
     <visibility>Public</visibility>
     <tag id="Items"/>
     <tag id="Challenges"/>
