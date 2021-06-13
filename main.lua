@@ -1,12 +1,18 @@
 local PStone = RegisterMod("PhilosopherStoneMod", 1)
 local game = Game()
---local json = require("json")
 --local sound = SFXManager()
+local json = require("json")
 
 
-
-local MAX_USES = 3 --This is the maximum number of uses the stone has. You can only use 3, 2, or 1
-
+local MAX_USES = 3 --This is the maximum number of uses the stone has. You can only use 3, 2, or 1. Set to 0 for infinite charges
+--============================================================================
+--DO NOT TOUCH THIS FUNCTION THIS IS ONLY TO PREVENT YOU FROM BREAKING THE MOD
+if MAX_USES > 3 then
+	MAX_USES = 3
+elseif MAX_USES < 0 then
+	MAX_USES = 0
+end
+--============================================================================
 PStone.pStoneCap = {
 
 	4,		--Cap for hearts, set a cap to prevent too much coin generation
@@ -71,12 +77,9 @@ function PStone:onUpdate()
 	
 
 	if game:GetFrameCount()  == 5 then
-		if Isaac.GetChallenge() == PStone.CHALLENGEID  then
-			--print("Challenge started!")
-			player:AddCollectible(PStone.COLLECTIBLE_P_STONE_THREE, 6, false, 0)
-		end
 		--DEBUG ONLY
 		if DEBUG_MODE == 1 then
+			player = game:GetPlayer(1)
 			player:AddCollectible(PStone.COLLECTIBLE_P_STONE_THREE, 12)
 			--Isaac.ExecuteCommand("debug 8")
 			Isaac.ExecuteCommand("debug 3")
@@ -101,6 +104,23 @@ function PStone:onUpdate()
 	
 end
 
+
+--Save data
+function PStone:onStart(continuedRun)
+	if PStone:HasData() then
+		GameState = json.decode(PStone:LoadData() )
+		if GameState.MaxUses ~= nil then
+			MAX_USES = GameState.MaxUses
+		end
+	end 
+end
+
+function PStone:onExit(bool)
+	if GameState.MaxUses ~= nil then
+		GameState.MaxUses = MAX_USES
+	end
+	PStone:SaveData(json.encode(GameState))
+end
 
 function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 
@@ -184,14 +204,13 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 	
 	end
 	
-	--Item is 1 use
+
 	local infoTable = {
 		Remove = false,
 		ShowAnim = true,
 	
 	}	
 	
-
 	if useFlags & UseFlag.USE_VOID > 0 then
 		if PStone.CHALLENGEID ~= Isaac.GetChallenge() then
 			infoTable.Remove = true
@@ -199,21 +218,32 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 		end
 	elseif useFlags & UseFlag.USE_CARBATTERY  == 0 then
 		if item == PStone.COLLECTIBLE_P_STONE_ONE then
-			infoTable.Remove = true
+			if MAX_USES == 0 then
+				infoTable.Remove = false
+			else
+				infoTable.Remove = true
+			end
 		elseif item == PStone.COLLECTIBLE_P_STONE_TWO then
-			player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_TWO, true, slot)
-			player:AddCollectible(PStone.COLLECTIBLE_P_STONE_ONE, 0, false, slot)
-			--print("1 charges left!")
+			if MAX_USES == 0 then
+				infoTable.Remove = false
+			elseif MAX_USES == 1 then
+				infoTable.Remove = true
+			else
+				player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_TWO, true, slot)
+				player:AddCollectible(PStone.COLLECTIBLE_P_STONE_ONE, 0, false, slot)
+			end
 		elseif item == PStone.COLLECTIBLE_P_STONE_THREE then
-			if PStone.CHALLENGEID ~= Isaac.GetChallenge() then
-				player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_THREE, true, slot)
+			if PStone.CHALLENGEID ~= Isaac.GetChallenge() or MAX_USES > 0 then
 				if MAX_USES == 1 then
 					infoTable.Remove = true
 					return infoTable			
-				elseif MAX_USES == 2 then
-					player:AddCollectible(PStone.COLLECTIBLE_P_STONE_ONE, 0, false, slot)
 				else
-					player:AddCollectible(PStone.COLLECTIBLE_P_STONE_TWO, 0, false, slot)
+					player:RemoveCollectible(PStone.COLLECTIBLE_P_STONE_THREE, true, slot)
+					if MAX_USES == 2 then
+						player:AddCollectible(PStone.COLLECTIBLE_P_STONE_ONE, 0, false, slot)
+					else
+						player:AddCollectible(PStone.COLLECTIBLE_P_STONE_TWO, 0, false, slot)
+					end
 				end
 						
 			end
@@ -228,21 +258,57 @@ function PStone:onPStoneUse(item, rmg, player, useFlags, slot, customData)
 	return infoTable
 end
 
+
+function PStone:onPlayerInit(player)
+	if Isaac.GetChallenge() == PStone.CHALLENGEID  then
+		player:AddCollectible(PStone.COLLECTIBLE_P_STONE_THREE, 6, false, 0)
+	end
+end
+
+--Save data
+PStone:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, PStone.onStart)
+PStone:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, PStone.onExit)
+--
 PStone:AddCallback(ModCallbacks.MC_POST_UPDATE, PStone.onUpdate)
 PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE_ONE)
 PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE_TWO)
 PStone:AddCallback(ModCallbacks.MC_USE_ITEM, PStone.onPStoneUse, PStone.COLLECTIBLE_P_STONE_THREE)
+--For the challenge
+PStone:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, PStone.onPlayerInit)
 if EID then
 	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_THREE, "#Three uses.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
 	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_TWO, "#Two uses left.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
 	EID:addCollectible(PStone.COLLECTIBLE_P_STONE_ONE, "#One use left.#Turns some pickups(ie keys, trinkets, ect) on the ground into their golden version.#Temporarily turns some non-boss enemies in the room into golden statues.#Also converts some item pedestals like Teleport into their golden version")
 end
 
---============================================================================
---DO NOT TOUCH THIS FUNCTION THIS IS ONLY TO PREVENT YOU FROM BREAKING THE MOD
-if MAX_USES > 3 then
-	MAX_USES = 3
-elseif MAX_USES <= 0 then
-	MAX_USES = 1
+
+--Mod config menu
+if ModConfigMenu then
+	local MODNAME = "Philosopher's Stone";
+	--Add a tab for Philosopher's Stone
+    ModConfigMenu.UpdateCategory(MODNAME,
+	{
+    Info = {
+        "View settings for " .. MODNAME .. ".",
+    }});
+
+	ModConfigMenu.AddSetting(MODNAME, "Settings", {
+		Type = ModConfigMenu.OptionType.NUMBER,
+		CurrentSetting = function()
+			return MAX_USES;
+		end,
+		Minimum = 0,
+		Maximum = 3,
+		Display = function()
+			return "Max Uses: " .. MAX_USES;
+		end,
+		OnChange = function(currentNum)
+			MAX_USES = currentNum;
+			GameState.MaxUses = MAX_USES
+		end,
+		Info = function()
+			return "Amount of uses per stone. Set to 0 for infinite uses";
+		end
+	});
+
 end
---============================================================================

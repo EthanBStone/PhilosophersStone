@@ -12,8 +12,8 @@ Now includes a new Challenge: &quot;Gold Rush!&quot;, which gives you a 6 room c
 Note: The item will turn pickups into gold even if you don't have the golden pickup unlocked. For example, hearts will still be converted into golden hearts even if you dont have challenge #21 completed
 [h1] Update! [/h1]
 [list]
-[*]Can now be used 3 times. After the first use, it has a 6 room charge until you can use it again.
-[*]Now includes a new Challenge: &quot;Gold Rush!&quot;, which gives you a 6 room charge Philosopher Stone that can be used an infinite amount of times
+[*]Now has Mod Config Menu support to edit the number of uses 
+[*]Fixed the challenge not always giving you the Stone, and made the challenge coop compatible
 [/list]
 [h1]Item Conversions[/h1]
 You can even convert some item pedestals into their golden counterparts. This includes [list]
@@ -26,14 +26,22 @@ You can even convert some item pedestals into their golden counterparts. This in
 [*]There's options -&gt; More options
 [*]Options? -&gt; More options
 [/list]
-Has Extenal Item Descriptions support
 
+[h1]How to edit the number of uses[/h1]
+[list]
+[*]Option 1: Use Mod Config Menu, and edit the Max Uses under &quot;Philospher Stone&quot;
+[*]Option 2: Edit the &quot;MaxUses&quot; in data/philosophersstone/save(saveNumber).dat (the save file will only appear after starting a run and exiting to the menu) The value must be 0,1,2, or 3. Setting it to 0 will give it infinite uses
+[/list]
+[h1]Compatibility[/h1][list]
+[*]Has Extenal Item Descriptions support
+[*]Has Mod Config Menu support
+[/list]
 Known Bugs/Issues:
 *Sucking it up with void instantly uses it
 
 Programming by EdinEfin
 Item Sprite by PJJLegend</description>
-    <version>1.8</version>
+    <version>1.10</version>
     <visibility>Public</visibility>
     <tag id="Items"/>
     <tag id="Challenges"/>
